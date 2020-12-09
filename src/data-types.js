@@ -561,7 +561,7 @@ class BLOB extends ABSTRACT {
     }
     return true;
   }
-  _stringify(value) {
+  _stringify(value, opt = null) {
     if (!Buffer.isBuffer(value)) {
       if (Array.isArray(value)) {
         value = Buffer.from(value);
@@ -569,21 +569,32 @@ class BLOB extends ABSTRACT {
         value = Buffer.from(value.toString());
       }
     }
-    const hex = value.toString('hex');
-    return this._hexify(hex);
+    // const hex = value.toString('hex');
+    // return this._hexify(hex);
+    value = value.toString('utf8');
+    if(opt && opt.isDecryptOperation) {
+      return `CONVERT(aes_decrypt(${opt.field.fieldName}, '${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}') USING utf8) LIKE '${value}'`;
+    }
+    
+    return `aes_encrypt("${value}",'${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')`;
   }
   _hexify(hex) {
     return `X'${hex}'`;
   }
   _bindParam(value, options) {
+    console.log("BUFFFFFFFFFFFERRRRRRRRRRRRRR", value, options);
     if (!Buffer.isBuffer(value)) {
       if (Array.isArray(value)) {
-        value = Buffer.from(value);
+        console.log("BUFFFFFFFFFFFERRRRRRRRRRRRRR22222222222222222222", value);
+        // value = Buffer.from(value);
+        value = `aes_encrypt("${value}",'${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')`;
       } else {
-        value = Buffer.from(value.toString());
+        console.log("BUFFFFFFFFFFFERRRRRRRRRRRRRR3333333333333333333");
+        // value = Buffer.from(value.toString());
+        value = `aes_encrypt("${value}",'${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')`;
       }
     }
-    return options.bindParam(value);
+    return value;
   }
 }
 
