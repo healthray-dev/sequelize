@@ -23,7 +23,7 @@ const QuoteHelper = require('./query-generator/helpers/quote');
  * @private
  */
 class QueryGenerator {
-  constructor(options) {
+  constructor(options) { 
     console.log("query generatore---------------------------------------------------------")
     console.log("query generatore---------------------------------------------------------")
     console.log("query generatore---------------------------------------------------------")
@@ -851,6 +851,7 @@ class QueryGenerator {
         }
 
         if (typeof item === 'string') {
+          console.log("INSIDE ORDER BY QUOTE ---------111111111111111-------------------- ");
           // get order index
           const orderIndex = validOrderOptions.indexOf(item.toUpperCase());
 
@@ -911,9 +912,12 @@ class QueryGenerator {
 
       if (i > 0) {
         sql += `${this.quoteIdentifier(tableNames.join(connector))}.`;
-      } else if (typeof collection[0] === 'string' && parent) {
-        sql += `${this.quoteIdentifier(parent.name)}.`;
       }
+      //  else if (typeof collection[0] === 'string' && parent) {
+      //   console.log("PARENT NAME ::::::::::::::::::::::;",parent.name);
+      //   // sql += `${this.quoteIdentifier(parent.name)}.`;
+      //   sql += `${this.quoteIdentifier(parent.name)}.`;
+      // }
 
       // loop through everything past i and append to the sql
       collection.slice(i).forEach(collectionItem => {
@@ -1220,13 +1224,20 @@ class QueryGenerator {
     }
 
     var tableAttributes = mainTable.model.rawAttributes;
+    var encFields = {
+      encryptedFields:null,
+      subTableEncryptedFields:null
+    }
     var encryptedFields = [];
+    var subTableEncryptedFields = [];
       
     for (var key in tableAttributes) {
-      console.log(key + " ===> " + tableAttributes[key].encrypt);
+      console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
       if(tableAttributes[key].encrypt === true)
         encryptedFields.push("`"+key+"`")
     }
+
+    encFields.encryptedFields = encryptedFields
     // console.log("##########################################",tableAttributes);
     // console.log("$$$$$$$$$$$$$$$", mainTable.model.rawAttributes);
     // for (const key in mainTable.model.rawAttributes) {
@@ -1267,6 +1278,17 @@ class QueryGenerator {
         if (include.separate) {
           continue;
         }
+        console.log("include model name::::::::::::::::::::::::: ",include.model.tableName);
+        let subTableName = include.model.name
+        for (var key in include.model.rawAttributes) {
+          // console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
+          if(include.model.rawAttributes[key].encrypt === true){
+            console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
+            subTableEncryptedFields.push("`"+subTableName+"`.`"+key+"`")
+          }
+        }
+        console.log("SUB TABLE ENC FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ",subTableEncryptedFields);
+        encFields.subTableEncryptedFields = subTableEncryptedFields
 
         const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);
 
@@ -1283,7 +1305,7 @@ class QueryGenerator {
     }
 
     if (subQuery) {
-      subQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.subQuery, mainTable.quotedName, mainTable.as, options.where,  tableAttributes));
+      subQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.subQuery, mainTable.quotedName, mainTable.as, options.where,  encFields));
       subQueryItems.push(subJoinQueries.join(''));
     } else {
       console.log("inside subquery elseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
@@ -1395,7 +1417,7 @@ class QueryGenerator {
         })`, mainTable.as,options.where, encryptedFields));
       } else {
         console.log("elseeeeeeeeeeeeee grouplimitttttttttttttttttttttttttttttttttt");
-        mainQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.main, mainTable.quotedName, mainTable.as, options.where, encryptedFields));
+        mainQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.main, mainTable.quotedName, mainTable.as, options.where, encFields));
       }
 
       mainQueryItems.push(mainJoinQueries.join(''));
@@ -1422,7 +1444,7 @@ class QueryGenerator {
           // Walk the main query to update all selects
           mainQueryItems.forEach((value, key) => {
             if (value.startsWith('SELECT')) {
-              mainQueryItems[key] = this.selectFromTableFragment(options, model, attributes.main, mainTable.quotedName, mainTable.as, options.where, encryptedFields);
+              mainQueryItems[key] = this.selectFromTableFragment(options, model, attributes.main, mainTable.quotedName, mainTable.as, options.where, encFields);
             }
           });
         }
@@ -1457,6 +1479,7 @@ class QueryGenerator {
     // Add ORDER to sub or main query
     if (options.order) {
       const orders = this.getQueryOrders(options, model, subQuery);
+      console.log("---------------------------------INSIDE ORDER BY----------------------------------");
       if (orders.mainQueryOrder.length) {
         mainQueryItems.push(` ORDER BY ${orders.mainQueryOrder.join(', ')}`);
       }
@@ -2147,6 +2170,7 @@ class QueryGenerator {
 
     if (Array.isArray(options.order)) {
       for (let order of options.order) {
+        console.log("INSIDE ORDER BY LOOP ------------------------ ",order);
 
         // wrap if not array
         if (!Array.isArray(order)) {
@@ -2171,7 +2195,6 @@ class QueryGenerator {
           const subQueryAttribute = options.attributes.find(a => Array.isArray(a) && a[0] === order[0] && a[1]);
           if (subQueryAttribute) {
             const modelName = this.quoteIdentifier(model.name);
-
             order[0] = new Utils.Col(this._getAliasForField(modelName, subQueryAttribute[1], options) || subQueryAttribute[1]);
           }
         }
@@ -2209,8 +2232,9 @@ class QueryGenerator {
     console.log("main table asssssssssssssssssssssssss : ",mainTableAs);
 
     if(options.tableNames.length > 1){
-      encryptedFields=encryptedFields.map(field => mainTableAs+'.'+field)
+      encryptedFields.encryptedFields=encryptedFields.encryptedFields.map(field => mainTableAs+'.'+field);
     }
+    encryptedFields = encryptedFields.subTableEncryptedFields!== null ? encryptedFields = [...encryptedFields.encryptedFields, ...encryptedFields.subTableEncryptedFields] : [...encryptedFields.encryptedFields]
     console.log("After appending main table name in encrypted fields :::::::::::::::::::::::: ", encryptedFields);
 
     if(encryptedFields) {
@@ -2223,8 +2247,9 @@ class QueryGenerator {
           attribute = attr.split(" AS ")[0];
           as  = attr.split(" AS ")[1];
         }
+        console.log(attribute, "::::::::::::::::::::::::", as);
         if(encryptedFields.includes(attribute)){
-          attributes[index] = `convert(aes_decrypt(${attribute}, '${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')using utf8) AS ${as}`
+          attributes[index] = `convert(aes_decrypt(${attribute}, '${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')using utf8) AS ${as}`;
         }
       });
     }
