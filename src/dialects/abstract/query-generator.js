@@ -778,7 +778,7 @@ class QueryGenerator {
    @private
   */
   quote(collection, parent, connector) {
-    // init
+ // init
     const validOrderOptions = [
       'ASC',
       'DESC',
@@ -1651,9 +1651,9 @@ class QueryGenerator {
 
     if (topLevelInfo.names.name !== parentTableName.externalAs && topLevelInfo.names.as !== parentTableName.externalAs) {
       console.log("generateInclude concate -> in n level nesting field if------------------------------------- ");
+      // includeAs.internalAs = `${parentTableName.internalAs}->${include.as}`;
       includeAs.internalAs = `${parentTableName.internalAs}.${include.as}`;
       includeAs.externalAs = `${parentTableName.externalAs}.${include.as}`;
-      // includeAs.externalAs = `${parentTableName.externalAs}->${include.as}`;=
     }
 
     // includeIgnoreAttributes is used by aggregate functions
@@ -2273,9 +2273,9 @@ class QueryGenerator {
     console.log("selectFromTableFragment ----------- tables ------ : ",tables);
     console.log("selectFromTableFragment ---------- options.tableNames :",options.tableNames);
     console.log("selectFromTableFragment -------- main table asssssssssssssssssssssssss : ",mainTableAs);
-    console.log("selectFromTableFragment ------------ isRaw --------",isRaw);
+    console.log("selectFromTableFragment ------------ isRaw --------",isRaw); 
 
-    if(options.tableNames.length > 1){
+    if(options.tableNames instanceof Array && options && options.tableNames && options.tableNames.length > 1){
       encryptedFields.encryptedFields=encryptedFields.encryptedFields.map(field => mainTableAs+'.'+field);
     }
 
@@ -2298,7 +2298,7 @@ class QueryGenerator {
     }
 
     if(encryptedFields) {
-      attributes.forEach((attribute, index) => {
+       attributes.forEach((attribute, index) => {
         console.log("SINGLEEEEEE ATTR", attribute);
         var fieldName = attributes[index].replace(/`/g,'');
         var as = fieldName.substr(fieldName.indexOf('.')+1); 
