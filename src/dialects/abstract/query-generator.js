@@ -1183,11 +1183,12 @@ class QueryGenerator {
    @private
   */
   selectQuery(tableName, options, model) {
-    console.log("Select query tableName--------------------------------------------------", tableName);
-    console.log("Select query options--------------------------------------------------\n", options);
-    console.log("Select query model--------------------------------------------------", model);
-    console.log("Select query attributes--------------------------------------------------");
-    console.log("SELCT QUERY OPTIONS TABLE NAMES -------------------------",options.tableNames);
+    console.log("selectQuery tableName--------------------------------------------------", tableName);
+    console.log("selectQuery options--------------------------------------------------\n", options);
+    console.log("selectQuery model--------------------------------------------------", model);
+    console.log("selectQuery attributes--------------------------------------------------");
+    console.log("selectQuery OPTIONS TABLE NAMES -------------------------",options.tableNames);
+    console.log("selectQuery attributes ------------------------------- ", options.attributes);
 
     console.log("selectQuery--------------------------  options.raw ------------------------ ", options.raw);
     const isRaw = options.raw || null
@@ -1284,6 +1285,7 @@ class QueryGenerator {
       attributes.main = [`${mainTable.as || mainTable.quotedName}.*`];
     }
 
+    console.log("selectQuery attribuites before include ::::::::::::::::::::: \n",attributes);
     if (options.include) {
       for (const include of options.include) {
         if (include.separate) {
@@ -1337,6 +1339,7 @@ class QueryGenerator {
         }
       }
     }
+    console.log("selectQuery attribuites after include ::::::::::::::::::::: \n",attributes.main);
 
     if (subQuery) {
       subQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.subQuery, mainTable.quotedName, mainTable.as, options.where,  encFields, isRaw));
@@ -1451,6 +1454,7 @@ class QueryGenerator {
         })`, mainTable.as,options.where, encFields, isRaw));
       } else {
         console.log("elseeeeeeeeeeeeee grouplimitttttttttttttttttttttttttttttttttt");
+        console.log("selectQuery ------------------------ ATTRIBUTES.MAIN  -------------------------------------------  \n",attributes.main );
         mainQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.main, mainTable.quotedName, mainTable.as, options.where, encFields, isRaw));
       }
 
@@ -2792,7 +2796,7 @@ class QueryGenerator {
   }
 
   _whereParseSingleValueObject(key, field, prop, value, options) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject  ???????????????????????????????????????${key,field,prop,value,options}`);
+    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject  ???????????????????????????????????????\n`,options.model.rawAttributes[key].type);
     if (prop === Op.not) {
       console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 000000000 ???????????????????????????????????????`);
       if (Array.isArray(value)) {
@@ -2917,8 +2921,11 @@ class QueryGenerator {
     }
     console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 90");
 
-    // return this._joinKeyValue(key, this.escape(value, field, escapeOptions, true), comparator, options.prefix);
-    return this._joinKeyValue("", this.escape(value, field, escapeOptions, true), "", "");
+    console.log("?????????????????? whereParseSingleValueObject ????????? Key Type ::  ",options.model.rawAttributes[key].type.toString());
+    if(options.model.rawAttributes[key].type.toString() === "BLOB")
+      return this._joinKeyValue("", this.escape(value, field, escapeOptions, true), "", "");
+    else
+      return this._joinKeyValue(key, this.escape(value, field, escapeOptions, true), comparator, options.prefix);
   }
 
   /*
