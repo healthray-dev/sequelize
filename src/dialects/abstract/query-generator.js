@@ -2312,7 +2312,7 @@ class QueryGenerator {
           console.log("selectFromTableFragment RAW Attribute :::::::::::::::  ",attribute);
           let attr = attribute;
           let old_as  = attr.split(" AS ")[1];
-          let new_as = old_as.replace('.','_');
+          let new_as = old_as.replace(/\./g,'_',);
           attributes[index] = attr.replace(old_as,new_as);
         }
       })
