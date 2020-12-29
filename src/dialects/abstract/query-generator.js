@@ -14,6 +14,7 @@ const HasMany = require('../../associations/has-many');
 const Op = require('../../operators');
 const sequelizeError = require('../../errors');
 const IndexHints = require('../../index-hints');
+const { fn, col } = require('sequelize');
 
 const QuoteHelper = require('./query-generator/helpers/quote');
 
@@ -1667,6 +1668,21 @@ class QueryGenerator {
 
       const includeAttributes = include.attributes.map(attr => {
         let attrAs = attr;
+        console.log("generateInclude attrAs  11 ----------------- ", attrAs);
+        if(attr[0] instanceof Utils.Fn) {
+          let attribute = attr[0].args[0];
+          let  fieldName = attribute.split('.').pop();
+          console.log("generateInclude Include 1 -------------- ",attribute, " \n ------------------------- \n",);
+          if(include.model.rawAttributes[fieldName].encrypt === true){
+            console.log("generateInclude  Include fieldName ------------- ",fieldName);
+            if(attr[0].args instanceof Array){
+              fieldName = "`"+attribute.replace('.','`.`')+"`";
+              console.log("generateInclude fieldName ------------------- ",fieldName);
+              attr[0].args[0] = fn('aes_decrypt',col(fieldName),process.env.ENCRYPTION_KEY, process.env.IV_KEY);
+              console.log("generateInclude attr ::::::::: ",attr[0]);
+            }
+          }
+        }
         let verbatim = false;
 
         console.log("generateInclude attr : ",attr, " ",typeof attr);
@@ -1682,7 +1698,7 @@ class QueryGenerator {
           attr = attr.map(attr => attr instanceof Utils.SequelizeMethod ? this.handleSequelizeMethod(attr) : attr);
 
           attrAs = attr[1];
-          attr = attr[0];
+          attr = attr[0].replace(/\\/g, '');
         }
         if (attr instanceof Utils.Literal) {
           return attr.val; // We trust the user to rename the field correctly
@@ -1697,12 +1713,14 @@ class QueryGenerator {
         let prefix;
         if (verbatim === true) {
           prefix = attr;
+          console.log("gerateInclude if --------------- prefix -------",prefix);
         } else if (/#>>|->>/.test(attr)) {
           prefix = `(${this.quoteIdentifier(includeAs.internalAs)}.${attr.replace(/\(|\)/g, '')})`;
         } else if (/json_extract\(/.test(attr)) {
           prefix = attr.replace(/json_extract\(/i, `json_extract(${this.quoteIdentifier(includeAs.internalAs)}.`);
-        } else {
+        } else { 
           prefix = `${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}`;
+          console.log("gerateInclude else  --------------- prefix -------",prefix);
         }
         let alias = `${includeAs.externalAs}.${attrAs}`;
 
@@ -1829,7 +1847,6 @@ class QueryGenerator {
   }
 
   generateJoin(include, topLevelInfo) {
-    console.log("generateJoin ----------------------------------------------");
     const association = include.association;
     const parent = include.parent;
     const parentIsTop = !!parent && !include.parent.association && include.parent.model.name === topLevelInfo.options.model.name;
