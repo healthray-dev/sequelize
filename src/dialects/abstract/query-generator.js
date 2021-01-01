@@ -1328,6 +1328,7 @@ class QueryGenerator {
         encFields.subTableEncryptedFields = subTableEncryptedFields
 
         const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);
+        console.log('joinQueries : ', joinQueries);
 
         subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
         mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);
@@ -1668,21 +1669,29 @@ class QueryGenerator {
 
       const includeAttributes = include.attributes.map(attr => {
         let attrAs = attr;
-        console.log("generateInclude attrAs  11 ----------------- ", attrAs);
-        if(attr[0] instanceof Utils.Fn) {
-          let attribute = attr[0].args[0];
-          let  fieldName = attribute.split('.').pop();
-          console.log("generateInclude Include 1 -------------- ",attribute, " \n ------------------------- \n",);
-          if(include.model.rawAttributes[fieldName].encrypt === true){
-            console.log("generateInclude  Include fieldName ------------- ",fieldName);
-            if(attr[0].args instanceof Array){
-              fieldName = "`"+attribute.replace('.','`.`')+"`";
-              console.log("generateInclude fieldName ------------------- ",fieldName);
-              attr[0].args[0] = fn('aes_decrypt',col(fieldName),process.env.ENCRYPTION_KEY, process.env.IV_KEY);
-              console.log("generateInclude attr ::::::::: ",attr[0]);
+        console.log("generateInclude attrAs  11 ----------------- ", attrAs);		
+        if (attr[0] instanceof Utils.Fn) {
+          console.log("generateInclude attr args ----------------", attr[0].args);
+          for (const key in attr[0].args) {
+            if (attr[0].args[key] instanceof Utils.Col) {
+              console.log("generateInclude attr[0].args[key]  ----------------", attr[0].args[key]);
+              let attribute = attr[0].args[key].col;
+              let fieldName = attribute.split('.').pop();
+              console.log("generateInclude Include 1 -------------- ", attribute, " \n ------------------------- \n",);
+              if (include.model.rawAttributes[fieldName].encrypt === true) {
+                console.log("generateInclude  Include fieldName ------------- ", fieldName);
+                fieldName = "`"+attribute.replace('.','`.`')+"`";
+                console.log("generateInclude fieldName ------------------- ",fieldName);
+                // attr[0].args[key] = fn('aes_decrypt', col(fieldName), process.env.ENCRYPTION_KEY, process.env.IV_KEY);
+                attr[0].args[key] = fn("CONVERT", sequelize.literal(`aes_decrypt(${fieldName}, "${process.env.ENCRYPTION_KEY}", "${process.env.IV_KEY}") USING utf8`) )
+                // attr[0].args[key] = fn('convert',fn('aes_decrypt',col(fieldName),process.env.ENCRYPTION_KEY, process.env.IV_KEY), `CHAR`);
+                // attr[0].args[key] = `convert(aes_decrypt(${fieldName},${process.env.ENCRYPTION_KEY},${process.env.IV_KEY})using utf8)`;
+                console.log("generateInclude attr[0].args[key].col ::::::::::::: ",attr[0].args[key]);
+              }
             }
           }
         }
+
         let verbatim = false;
 
         console.log("generateInclude attr : ",attr, " ",typeof attr);
@@ -1719,7 +1728,12 @@ class QueryGenerator {
         } else if (/json_extract\(/.test(attr)) {
           prefix = attr.replace(/json_extract\(/i, `json_extract(${this.quoteIdentifier(includeAs.internalAs)}.`);
         } else { 
-          prefix = `${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}`;
+          const fieldName = this.quoteIdentifier(attr).replace(/`/g, '');
+          if (include.model.rawAttributes[fieldName].encrypt === true) {            
+            prefix = `CONVERT(aes_decrypt(${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}, "${process.env.ENCRYPTION_KEY}", "${process.env.IV_KEY}") USING utf8)`;
+          } else {
+            prefix = `${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}`;
+          }
           console.log("gerateInclude else  --------------- prefix -------",prefix);
         }
         let alias = `${includeAs.externalAs}.${attrAs}`;
@@ -3045,7 +3059,7 @@ class QueryGenerator {
   }
 }
 
-Object.assign(QueryGenerator.prototype, require('./query-generator/operators'));
-Object.assign(QueryGenerator.prototype, require('./query-generator/transaction'));
+Object.assign(QueryGenerator.prototype, require('sequelize/lib/dialects/abstract/query-generator/operators'));
+Object.assign(QueryGenerator.prototype, require('sequelize/lib/dialects/abstract/query-generator/transaction'));
 
 module.exports = QueryGenerator;
