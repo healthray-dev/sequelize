@@ -779,6 +779,9 @@ class QueryGenerator {
    @private
   */
   quote(collection, parent, connector) {
+    console.log("quote ---------------------- collection ------------- ",collection);
+    console.log("quote ---------------------- parent ------------- ",parent);
+    console.log("quote ---------------------- connector ------------- ",connector);
  // init
     const validOrderOptions = [
       'ASC',
@@ -815,6 +818,7 @@ class QueryGenerator {
 
         // if the previous item is a model, then attempt getting an association
         if (previousModel && previousModel.prototype instanceof Model) {
+          console.log("previous item is a model, then attempt getting an association", previousModel);
           let model;
           let as;
 
@@ -858,6 +862,7 @@ class QueryGenerator {
 
           console.log("ORDER INDEX ---------------------",orderIndex);
           console.log("ITEM INSIDE ORDER-----------------------",item);
+          console.log("previousModel INSIDE ORDER-----------------------",previousModel);
 
           // see if this is an order
           if (index > 0 && orderIndex !== -1) {
@@ -919,11 +924,11 @@ class QueryGenerator {
       if (i > 0) {
         sql += `${this.quoteIdentifier(tableNames.join(connector))}.`;
       }
-      //  else if (typeof collection[0] === 'string' && parent) {
-      //   console.log("PARENT NAME ::::::::::::::::::::::;",parent.name);
-      //   // sql += `${this.quoteIdentifier(parent.name)}.`;
-      //   sql += `${this.quoteIdentifier(parent.name)}.`;
-      // }
+       else if (typeof collection[0] === 'string' && parent) {
+        console.log("PARENT NAME ::::::::::::::::::::::;",parent.name);
+        // sql += `${this.quoteIdentifier(parent.name)}.`;
+        sql += `${this.quoteIdentifier(parent.name)}.`;
+      }
 
       // loop through everything past i and append to the sql
       collection.slice(i).forEach(collectionItem => {
@@ -2247,8 +2252,9 @@ class QueryGenerator {
     const subQueryOrder = [];
 
     if (Array.isArray(options.order)) {
+      console.log("ORDER ------------------- \n",options);
       for (let order of options.order) {
-        console.log("INSIDE ORDER BY LOOP ------------------------ ",order);
+        console.log("INSIDE ORDER BY LOOP ------------------------ ",);
 
         // wrap if not array
         if (!Array.isArray(order)) {
