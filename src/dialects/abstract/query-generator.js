@@ -1251,7 +1251,7 @@ class QueryGenerator {
       
     for (var key in tableAttributes) {
       console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
-      if(tableAttributes[key].encrypt === true)
+      if(tableAttributes[key].type.toString().includes("BLOB") && tableAttributes[key].encrypt !== false)
         encryptedFields.push("`"+key+"`")
     }
 
@@ -1304,7 +1304,7 @@ class QueryGenerator {
 
         for (var key in include.model.rawAttributes) {
           // console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
-          if(include.model.rawAttributes[key].encrypt === true){
+          if(include.model.rawAttributes[key].type.toString().includes("BLOB") && include.model.rawAttributes[key].encrypt !== false){
             console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
             subTableEncryptedFields.push("`"+subTableName+"`.`"+key+"`")
           }
@@ -1320,7 +1320,7 @@ class QueryGenerator {
   
             for (var key in nestedInclude.model.rawAttributes) {
               // console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
-              if(nestedInclude.model.rawAttributes[key].encrypt === true){
+              if(nestedInclude.model.rawAttributes[key].type.toString().includes("BLOB") && nestedInclude.model.rawAttributes[key].encrypt !== false){
                 console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
                 subTableEncryptedFields.push("`"+subTableName+"."+nestedTableName+"`.`"+key+"`")
               }
@@ -1683,7 +1683,7 @@ class QueryGenerator {
               let attribute = attr[0].args[key].col;
               let fieldName = attribute.split('.').pop();
               console.log("generateInclude Include 1 -------------- ", attribute, " \n ------------------------- \n",);
-              if (include.model.rawAttributes[fieldName].encrypt === true) {
+              if (include.model.rawAttributes[fieldName].type.toString().includes("BLOB") && include.model.rawAttributes[fieldName].encrypt !== false) {
                 console.log("generateInclude  Include fieldName ------------- ", fieldName);
                 fieldName = "`"+attribute.replace('.','`.`')+"`";
                 console.log("generateInclude fieldName ------------------- ",fieldName);
@@ -1734,7 +1734,7 @@ class QueryGenerator {
           prefix = attr.replace(/json_extract\(/i, `json_extract(${this.quoteIdentifier(includeAs.internalAs)}.`);
         } else { 
           const fieldName = this.quoteIdentifier(attr).replace(/`/g, '');
-          if (include.model.rawAttributes[fieldName].encrypt === true) {            
+          if (include.model.rawAttributes[fieldName].type.toString().includes("BLOB") && include.model.rawAttributes[fieldName].encrypt !== false) {            
             prefix = `CONVERT(aes_decrypt(${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}, "${process.env.ENCRYPTION_KEY}", "${process.env.IV_KEY}") USING utf8)`;
           } else {
             prefix = `${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}`;
