@@ -2326,17 +2326,25 @@ class QueryGenerator {
     console.log("After appending main table name in encrypted fields :::::::::::::::::::::::: ", encryptedFields);
     console.log("attributes :::::::::::::::::::::::: ", attributes);
 
-    if(isRaw){
-      attributes.forEach((attribute,index)=>{       
-        if(attribute.trim().indexOf(" AS ") >= 0) {
-          console.log("selectFromTableFragment RAW Attribute :::::::::::::::  ",attribute);
-          let attr = attribute;
-          let old_as  = attr.split(" AS ")[1];
-          let new_as = old_as.replace(/\./g,'_',);
-          attributes[index] = attr.replace(old_as,new_as);
-        }
-      })
-    }
+    if (isRaw) {
+      attributes.forEach((attribute, index) => {
+          if (attribute.trim().indexOf(" AS ") >= 0) {
+              let attr = attribute;
+              let old_as = attr.split(" AS ")[1];
+              let new_as = old_as.replace(/\./g, '_');
+              if(old_as.indexOf('.') > 0){
+                  // console.log("\n\n:::::::::::::::::::::::::::: ",old_as,"\n\n");
+                  new_as = old_as.split(".");
+                  new_as = '`'+new_as[new_as.length - 1];
+                  // console.log("\n\n:::::::::::::::::::::::::::: ",new_as,"\n\n");
+                  if(new_as === "`id`"){
+                      new_as = old_as.replace(/\./g, '_');
+                  }
+              }
+              attributes[index] = attr.replace(old_as, new_as);
+          }
+      });
+  }
 
     if(encryptedFields) {
        attributes.forEach((attribute, index) => {
