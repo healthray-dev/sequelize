@@ -25,10 +25,10 @@ const QuoteHelper = require('./query-generator/helpers/quote');
  */
 class QueryGenerator {
   constructor(options) {
-    console.log("query generatore---------------------------------------------------------")
-    console.log("query generatore---------------------------------------------------------")
-    console.log("query generatore---------------------------------------------------------")
-    console.log("query generatore---------------------------------------------------------")
+    //console.log("query generatore---------------------------------------------------------")
+    //console.log("query generatore---------------------------------------------------------")
+    //console.log("query generatore---------------------------------------------------------")
+    //console.log("query generatore---------------------------------------------------------")
 
     if (!options.sequelize) throw new Error('QueryGenerator initialized without options.sequelize');
     if (!options._dialect) throw new Error('QueryGenerator initialized without options._dialect');
@@ -101,10 +101,10 @@ class QueryGenerator {
    * @private
    */
   insertQuery(table, valueHash, modelAttributes, options) {
-    // console.log("insert query -----------------------------------------------", table);
-    // console.log("insert query -----------------------------------------------", valueHash);
-    // console.log("insert query -----------------------------------------------", modelAttributes);
-    // console.log("insert query -----------------------------------------------", options);
+    // //console.log("insert query -----------------------------------------------", table);
+    // //console.log("insert query -----------------------------------------------", valueHash);
+    // //console.log("insert query -----------------------------------------------", modelAttributes);
+    // //console.log("insert query -----------------------------------------------", options);
 
     options = options || {};
     _.defaults(options, this.options);
@@ -163,32 +163,32 @@ class QueryGenerator {
       if (Object.prototype.hasOwnProperty.call(valueHash, key)) {
         const value = valueHash[key];
         fields.push(this.quoteIdentifier(key));
-        console.log("fields --------------------------------------------------------", fields);
-        console.log("value --------------------------------------------------------", value);
-        console.log("key --------------------------------------------------------", key);
-        console.log("modelAttributeMap --------------------------------------------------------", modelAttributeMap[key]);
+        //console.log("fields --------------------------------------------------------", fields);
+        //console.log("value --------------------------------------------------------", value);
+        //console.log("key --------------------------------------------------------", key);
+        //console.log("modelAttributeMap --------------------------------------------------------", modelAttributeMap[key]);
 
         // SERIALS' can't be NULL in postgresql, use DEFAULT where supported
         if (modelAttributeMap && modelAttributeMap[key] && modelAttributeMap[key].autoIncrement === true && !value) {
           if (!this._dialect.supports.autoIncrement.defaultValue) {
             fields.splice(-1, 1);
-            // console.log("fields 11111111111--------------------------------------------------------", fields);
+            // //console.log("fields 11111111111--------------------------------------------------------", fields);
           } else if (this._dialect.supports.DEFAULT) {
             values.push('DEFAULT');
-            // console.log("Field 2222222222222222---------------------------------------------------------- ", fields)
+            // //console.log("Field 2222222222222222---------------------------------------------------------- ", fields)
           } else {
             values.push(this.escape(null));
-            // console.log("Field 3333333333333---------------------------------------------------------- ", fields)
+            // //console.log("Field 3333333333333---------------------------------------------------------- ", fields)
           }
         } else {
           if (modelAttributeMap && modelAttributeMap[key] && modelAttributeMap[key].autoIncrement === true) {
             identityWrapperRequired = true;
-            // console.log("Field 44444444444444444---------------------------------------------------------- ", fields)
+            // //console.log("Field 44444444444444444---------------------------------------------------------- ", fields)
           }
 
           if (value instanceof Utils.SequelizeMethod || options.bindParam === false) {
             values.push(this.escape(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'INSERT' }));
-            // console.log("Field 5555555555555555---------------------------------------------------------- ", fields)
+            // //console.log("Field 5555555555555555---------------------------------------------------------- ", fields)
           } else {
             // if(modelAttributeMap[key].encrypt === true)
             // {
@@ -198,7 +198,7 @@ class QueryGenerator {
             // } else {
               values.push(this.format(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'INSERT' }, bindParam));
             // }
-            // console.log("Field 66666666666666666---------------------------------------------------------- ", fields)
+            // //console.log("Field 66666666666666666---------------------------------------------------------- ", fields)
           }
         }
       }
@@ -218,7 +218,7 @@ class QueryGenerator {
       }
     }
 
-    console.log("valuesvaluesvaluesvalues: ", values);
+    //console.log("valuesvaluesvaluesvalues: ", values);
 
     const replacements = {
       ignoreDuplicates: options.ignoreDuplicates ? this._dialect.supports.inserts.ignoreDuplicates : '',
@@ -232,9 +232,9 @@ class QueryGenerator {
     valueQuery = `${tmpTable}INSERT${replacements.ignoreDuplicates} INTO ${quotedTable} (${replacements.attributes})${replacements.output} VALUES (${replacements.values})${onDuplicateKeyUpdate}${replacements.onConflictDoNothing}${valueQuery}`;
     emptyQuery = `${tmpTable}INSERT${replacements.ignoreDuplicates} INTO ${quotedTable}${replacements.output}${onDuplicateKeyUpdate}${replacements.onConflictDoNothing}${emptyQuery}`;
 
-    console.log("insert query -----------------------------------------------");
-    console.log("insert query -----------------------------------------------");
-    console.log("insert query -----------------------------------------------", valueQuery);
+    //console.log("insert query -----------------------------------------------");
+    //console.log("insert query -----------------------------------------------");
+    //console.log("insert query -----------------------------------------------", valueQuery);
 
     // Mostly for internal use, so we expect the user to know what he's doing!
     // pg_temp functions are private per connection, so we never risk this function interfering with another one.
@@ -367,12 +367,12 @@ class QueryGenerator {
    * @private
    */
   updateQuery(tableName, attrValueHash, where, options, attributes) {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update tablename<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",tableName);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update attrValueHash<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",attrValueHash);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update where<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",where);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update options<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",options);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update attributes<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",attributes);
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update tablename<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",tableName);
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update attrValueHash<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",attrValueHash);
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update where<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",where);
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update options<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",options);
+    //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update attributes<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",attributes);
     
     options = options || {};
     _.defaults(options, this.options);
@@ -434,7 +434,7 @@ class QueryGenerator {
       if (value instanceof Utils.SequelizeMethod || options.bindParam === false) {
         values.push(`${this.quoteIdentifier(key)}=${this.escape(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'UPDATE' })}`);
       } else {
-        console.log(`Quote Indentifierrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr:::: \n\n ${this.quoteIdentifier(key)}=${this.format(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'UPDATE' }, bindParam)}`);
+        //console.log(`Quote Indentifierrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr:::: \n\n ${this.quoteIdentifier(key)}=${this.format(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'UPDATE' }, bindParam)}`);
         // if(modelAttributeMap[key].encrypt === true) {
         //   var formatedEncData = this.format(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'UPDATE' }, bindParam)
         //   var formatedEncValue = `aes_encrypt(${formatedEncData},'${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')`
@@ -446,21 +446,21 @@ class QueryGenerator {
     }
 
     const whereOptions = { ...options, bindParam };
-    // console.log("whereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.where :::::",whereOptions.where); 
+    // //console.log("whereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.where :::::",whereOptions.where); 
     // let whereObject = whereOptions.where
     // for(let key in whereObject){
     //   if(modelAttributeMap[key].encrypt === true){
     //     whereOptions.where[key] = `aes_encrypt("${whereOptions.where[key]}",'${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')`
     //   }
     // }
-    console.log("Update optionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",whereOptions);
+    //console.log("Update optionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",whereOptions);
 
 
     if (values.length === 0) {
       return '';
     }
 
-    console.log("generated where queryyyyyyyyyyyyyyyyyyyyyyyy ::::::::::::::   ",this.whereQuery(where, whereOptions));
+    //console.log("generated where queryyyyyyyyyyyyyyyyyyyyyyyy ::::::::::::::   ",this.whereQuery(where, whereOptions));
 
     const query = `${tmpTable}UPDATE ${this.quoteTable(tableName)} SET ${values.join(',')}${outputFragment} ${this.whereQuery(where, whereOptions)}${suffix}`.trim();
     // Used by Postgres upsertQuery and calls to here with options.exception set to true
@@ -779,9 +779,9 @@ class QueryGenerator {
    @private
   */
   quote(collection, parent, connector) {
-    console.log("quote ---------------------- collection ------------- ",collection);
-    console.log("quote ---------------------- parent ------------- ",parent);
-    console.log("quote ---------------------- connector ------------- ",connector);
+    //console.log("quote ---------------------- collection ------------- ",collection);
+    //console.log("quote ---------------------- parent ------------- ",parent);
+    //console.log("quote ---------------------- connector ------------- ",connector);
  // init
     const validOrderOptions = [
       'ASC',
@@ -818,7 +818,7 @@ class QueryGenerator {
 
         // if the previous item is a model, then attempt getting an association
         if (previousModel && previousModel.prototype instanceof Model) {
-          console.log("previous item is a model, then attempt getting an association", previousModel);
+          //console.log("previous item is a model, then attempt getting an association", previousModel);
           let model;
           let as;
 
@@ -856,13 +856,13 @@ class QueryGenerator {
         }
 
         if (typeof item === 'string') {
-          console.log("INSIDE ORDER BY QUOTE ---------111111111111111-------------------- ");
+          //console.log("INSIDE ORDER BY QUOTE ---------111111111111111-------------------- ");
           // get order index
           const orderIndex = validOrderOptions.indexOf(item.toUpperCase());
 
-          console.log("ORDER INDEX ---------------------",orderIndex);
-          console.log("ITEM INSIDE ORDER-----------------------",item);
-          console.log("previousModel INSIDE ORDER-----------------------",previousModel);
+          //console.log("ORDER INDEX ---------------------",orderIndex);
+          //console.log("ITEM INSIDE ORDER-----------------------",item);
+          //console.log("previousModel INSIDE ORDER-----------------------",previousModel);
 
           // see if this is an order
           if (index > 0 && orderIndex !== -1) {
@@ -903,7 +903,7 @@ class QueryGenerator {
 
       // loop through array, adding table names of models to quoted
       const collectionLength = collection.length;
-      console.log("INSIDE ORDER BY COLLECTION LENGTH ------------------    ",collectionLength);
+      //console.log("INSIDE ORDER BY COLLECTION LENGTH ------------------    ",collectionLength);
       const tableNames = [];
       let item;
       let i = 0;
@@ -917,7 +917,7 @@ class QueryGenerator {
         }
       }
 
-      console.log("AFTER ITEM ::::::::::::::::::::::::::::::::::::",item);
+      //console.log("AFTER ITEM ::::::::::::::::::::::::::::::::::::",item);
       // start building sql
       let sql = '';
 
@@ -925,7 +925,7 @@ class QueryGenerator {
         sql += `${this.quoteIdentifier(tableNames.join(connector))}.`;
       }
        else if (typeof collection[0] === 'string' && parent) {
-        console.log("PARENT NAME ::::::::::::::::::::::;",parent.name);
+        //console.log("PARENT NAME ::::::::::::::::::::::;",parent.name);
         // sql += `${this.quoteIdentifier(parent.name)}.`;
         sql += `${this.quoteIdentifier(parent.name)}.`;
       }
@@ -1030,10 +1030,10 @@ class QueryGenerator {
     @private
   */
   escape(value, field, options, isDecryptOperation = false) {
-    console.log("Escape called+++++++++++++++++++++++++++++++++++++++++++++++>");
-    console.log("Value==================================>",value);
-    console.log("Field=========================>",field);
-    console.log("Options===========================>",options);
+    //console.log("Escape called+++++++++++++++++++++++++++++++++++++++++++++++>");
+    //console.log("Value==================================>",value);
+    //console.log("Field=========================>",field);
+    //console.log("Options===========================>",options);
     options = options || {};
 
     if (value !== null && value !== undefined) {
@@ -1047,16 +1047,18 @@ class QueryGenerator {
           // Users shouldn't have to worry about these args - just give them a function that takes a single arg
           const simpleEscape = escVal => SqlString.escape(escVal, this.options.timezone, this.dialect);
 
-          console.log("@@@@@@@@@@22222222222",value);
+          //console.log("@@@@@@@@@@22222222222",value);
           value = field.type.stringify(value, { escape: simpleEscape, field, timezone: this.options.timezone, operation: options.operation, isDecryptOperation });
-          console.log("@@@@@@@@@@33333333333",value);
+          //console.log("@@@@@@@@@@33333333333",value);
           if (field.type.escape === false) {
             // The data-type already did the required escaping
+            //console.log("### escap returned value is false ::: \n",value);
             return value;
           }
         }
       }
     }
+    //console.log("### escap returned value :: \n", SqlString.escape(value, this.options.timezone, this.dialect));
     return SqlString.escape(value, this.options.timezone, this.dialect);
   }
 
@@ -1189,14 +1191,14 @@ class QueryGenerator {
    @private
   */
   selectQuery(tableName, options, model) {
-    console.log("selectQuery tableName--------------------------------------------------", tableName);
-    console.log("selectQuery options--------------------------------------------------\n", options);
-    console.log("selectQuery model--------------------------------------------------", model);
-    console.log("selectQuery attributes--------------------------------------------------");
-    console.log("selectQuery OPTIONS TABLE NAMES -------------------------",options.tableNames);
-    console.log("selectQuery attributes ------------------------------- ", options.attributes);
+    //console.log("selectQuery tableName--------------------------------------------------", tableName);
+    // //console.log("selectQuery options--------------------------------------------------\n", options);
+    // //console.log("selectQuery model--------------------------------------------------", model);
+    // //console.log("selectQuery attributes--------------------------------------------------");
+    // //console.log("selectQuery OPTIONS TABLE NAMES -------------------------",options.tableNames);
+    // //console.log("selectQuery attributes ------------------------------- ", options.attributes);
 
-    console.log("selectQuery--------------------------  options.raw ------------------------ ", options.raw);
+    //console.log("selectQuery--------------------------  options.raw ------------------------ ", options.raw);
     const isRaw = options.raw || null
     options = options || {};
     const limit = options.limit;
@@ -1208,9 +1210,9 @@ class QueryGenerator {
       subQuery: null
     };
 
-    console.log("Options Include names :::::::::::::::::::::::::::::::::::::", options.includeNames);
-    // console.log("attributesattributesattributes", attributes);
-    // console.log("Main Query itemsssssssssssssssssssssssssssss :",mainQueryItems);
+    //console.log("Options Include names :::::::::::::::::::::::::::::::::::::", options.includeNames);
+    // //console.log("attributesattributesattributes", attributes);
+    // //console.log("Main Query itemsssssssssssssssssssssssssssss :",mainQueryItems);
 
     const mainTable = {
       name: tableName,
@@ -1250,21 +1252,21 @@ class QueryGenerator {
     var subTableEncryptedFields = [];
       
     for (var key in tableAttributes) {
-      console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
+      // //console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
       if(tableAttributes[key].type.toString().includes("BLOB") && tableAttributes[key].encrypt !== false)
         encryptedFields.push("`"+key+"`")
     }
 
     encFields.encryptedFields = encryptedFields
-    // console.log("##########################################",tableAttributes);
-    // console.log("$$$$$$$$$$$$$$$", mainTable.model.rawAttributes);
+    // //console.log("##########################################",tableAttributes);
+    // //console.log("$$$$$$$$$$$$$$$", mainTable.model.rawAttributes);
     // for (const key in mainTable.model.rawAttributes) {
     //   if(mainTable.model.rawAttributes[key].encrypt === true)
     //   {
     //     // var formatedEncData = this.format(value, modelAttributeMap && modelAttributeMap[key] || undefined, { context: 'INSERT' }, bindParam);
     //     // var formatedEncValue = `aes_encrypt(${formatedEncData},'${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')`
     //     // values.push(formatedEncValue);
-    //     console.log("==============>", key);
+    //     //console.log("==============>", key);
     //   }
     // }
 
@@ -1291,68 +1293,109 @@ class QueryGenerator {
       attributes.main = [`${mainTable.as || mainTable.quotedName}.*`];
     }
 
-    console.log("selectQuery attribuites before include ::::::::::::::::::::: \n",attributes);
+    // console.log("selectQuery attribuites before include ::::::::::::::::::::: \n",attributes);
+    // console.log("=============================== in inclu =========================\n", options.include);
     if (options.include) {
-      for (const include of options.include) {
-        if (include.separate) {
-          continue;
-        }
-        console.log("include model name::::::::::::::::::::::::: ",include.model.tableName);
-      
-        // let subTableName = include.model.name
-        let subTableName = include.as
-
-        for (var key in include.model.rawAttributes) {
-          // console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
-          if(include.model.rawAttributes[key].type.toString().includes("BLOB") && include.model.rawAttributes[key].encrypt !== false){
-            console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
-            subTableEncryptedFields.push("`"+subTableName+"`.`"+key+"`")
+      let isInclude = true;    
+      let includes = options.include;
+      let tableNames = null;
+      while (isInclude) {
+        for (let include of includes) {
+          if (include.separate) { continue; }          
+          // console.log("include model name::::::::::::::::::::::::: ", include);
+          let tableName = include.as;
+          if(tableNames === null) { 
+            tableNames = tableName;
+          } 
+          else {
+            tableNames += '.' + tableName;
           }
-        }
-
-        if(include.include instanceof Array) {
-          for(const nestedInclude of include.include){
-            console.log("NESTED INCLUDE NAME :::::::::::::::::::::: ",nestedInclude.model.name);
-  
-            // let nestedTableName = nestedInclude.model.name
-            let nestedTableName = nestedInclude.as
-            console.log("NESTED TABLE RAW ATTRIBUTES :::::::\n",nestedInclude.model.rawAttributes);
-  
-            for (var key in nestedInclude.model.rawAttributes) {
-              // console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
-              if(nestedInclude.model.rawAttributes[key].type.toString().includes("BLOB") && nestedInclude.model.rawAttributes[key].encrypt !== false){
-                console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
-                subTableEncryptedFields.push("`"+subTableName+"."+nestedTableName+"`.`"+key+"`")
-              }
+          // console.log("include model name::::::::::::::::::::::::: ", tableNames);
+          for (var key in include.model.rawAttributes) {
+            if(include.model.rawAttributes[key].type.toString().includes("BLOB") && include.model.rawAttributes[key].encrypt !== false){
+              subTableEncryptedFields.push("`" + tableNames + "`."+ "`"+key+"`");
             }
           }
-        }
+    
+          encFields.subTableEncryptedFields = subTableEncryptedFields;
+          const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);        
+          subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
+          // mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);          
+          // if (joinQueries.attributes.main.length > 0) {
+            // attributes.main = _.uniq(attributes.main.concat(joinQueries.attributes.main));
+          // }
+          // if (joinQueries.attributes.subQuery.length > 0) {
+          //   attributes.subQuery = _.uniq(attributes.subQuery.concat(joinQueries.attributes.subQuery));
+          // }
 
-        console.log("SUB TABLE ENC FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ",subTableEncryptedFields);
+          if (include.include) includes = include.include;
+          else isInclude = false;            
+        }             
+                
+      }      
 
-        encFields.subTableEncryptedFields = subTableEncryptedFields
+      // for (const include of options.include) {
+      //   //console.log("=============================== sep =========================\n",include.separate);
+      //   if (include.separate) {
+      //     continue;
+      //   }
+      //   // console.log("include model name::::::::::::::::::::::::: ",include.model.tableName);
+      
+      //   // let subTableName = include.model.name
+      //   let subTableName = include.as
 
-        const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);
-        console.log('joinQueries : ', joinQueries);
+      //   for (var key in include.model.rawAttributes) {
+      //     // console.log("1 TABLE ATTRIBUTES ::::  "+ key + " ===> ", tableAttributes[key]);
+      //     if(include.model.rawAttributes[key].type.toString().includes("BLOB") && include.model.rawAttributes[key].encrypt !== false){
+      //       // console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
+      //       subTableEncryptedFields.push("`"+subTableName+"`.`"+key+"`")
+      //     }
+      //   }
 
-        subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
-        mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);
+      //   if(include.include instanceof Array) {
+      //     for(const nestedInclude of include.include){
+      //       //console.log("NESTED INCLUDE NAME :::::::::::::::::::::: ",nestedInclude.model.name);
+  
+      //       // let nestedTableName = nestedInclude.model.name
+      //       let nestedTableName = nestedInclude.as
+      //       //console.log("NESTED TABLE RAW ATTRIBUTES :::::::\n",nestedInclude.model.rawAttributes);
+  
+      //       for (var key in nestedInclude.model.rawAttributes) {
+      //         // //console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
+      //         if(nestedInclude.model.rawAttributes[key].type.toString().includes("BLOB") && nestedInclude.model.rawAttributes[key].encrypt !== false){
+      //           //console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
+      //           subTableEncryptedFields.push("`"+subTableName+"."+nestedTableName+"`.`"+key+"`")
+      //         } 
+      //       }
+      //     }
+      //   }
 
-        if (joinQueries.attributes.main.length > 0) {
-          attributes.main = _.uniq(attributes.main.concat(joinQueries.attributes.main));
-        }
-        if (joinQueries.attributes.subQuery.length > 0) {
-          attributes.subQuery = _.uniq(attributes.subQuery.concat(joinQueries.attributes.subQuery));
-        }
-      }
+      //   console.log("SUB TABLE ENC FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ",subTableEncryptedFields);
+
+      //   encFields.subTableEncryptedFields = subTableEncryptedFields
+
+      //   const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);
+      //   console.log('joinQueries : ', joinQueries);
+
+      //   subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
+      //   mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);
+
+      //   if (joinQueries.attributes.main.length > 0) {
+      //     attributes.main = _.uniq(attributes.main.concat(joinQueries.attributes.main));
+      //   }
+      //   if (joinQueries.attributes.subQuery.length > 0) {
+      //     attributes.subQuery = _.uniq(attributes.subQuery.concat(joinQueries.attributes.subQuery));
+      //   }
+      // }subQueryItems
     }
-    console.log("selectQuery attribuites after include ::::::::::::::::::::: \n",attributes.main);
+    //console.log("selectQuery attribuites after include ::::::::::::::::::::: \n",attributes.main);
 
     if (subQuery) {
       subQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.subQuery, mainTable.quotedName, mainTable.as, options.where,  encFields, isRaw));
+      console.log("subQuery :: \n\n",this.selectFromTableFragment(options, mainTable.model, attributes.subQuery, mainTable.quotedName, mainTable.as, options.where,  encFields, isRaw));
       subQueryItems.push(subJoinQueries.join(''));
     } else {
-      console.log("inside subquery elseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+      //console.log("inside subquery elseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
       if (options.groupedLimit) {
         if (!mainTable.as) {
           mainTable.as = mainTable.quotedName;
@@ -1460,8 +1503,8 @@ class QueryGenerator {
           )
         })`, mainTable.as,options.where, encFields, isRaw));
       } else {
-        console.log("elseeeeeeeeeeeeee grouplimitttttttttttttttttttttttttttttttttt");
-        console.log("selectQuery ------------------------ ATTRIBUTES.MAIN  -------------------------------------------  \n",attributes.main );
+        //console.log("elseeeeeeeeeeeeee grouplimitttttttttttttttttttttttttttttttttt");
+        //console.log("selectQuery ------------------------ ATTRIBUTES.MAIN  -------------------------------------------  \n",attributes.main );
         mainQueryItems.push(this.selectFromTableFragment(options, mainTable.model, attributes.main, mainTable.quotedName, mainTable.as, options.where, encFields, isRaw));
       }
 
@@ -1470,16 +1513,16 @@ class QueryGenerator {
 
     // Add WHERE to sub or main query
     if (Object.prototype.hasOwnProperty.call(options, 'where') && !options.groupedLimit) {
-      console.log("where ----------------------------------------------------------");
-      console.log("where ----------------------------------------------------------");
-      console.log("where ----------------------------------------------------------");
+      //console.log("where ----------------------------------------------------------");
+      //console.log("where ----------------------------------------------------------");
+      //console.log("where ----------------------------------------------------------");
       options.where = this.getWhereConditions(options.where, mainTable.as || tableName, model, options);
-      console.log("option where ----------------------------------------------------------", options.where);
-      // console.log("############################################ table attributes ################\n\n\n",tableAttributes);
+      //console.log("option where ----------------------------------------------------------", options.where);
+      // //console.log("############################################ table attributes ################\n\n\n",tableAttributes);
 
       
       
-      console.log("encryptedFields111111111111:::::::::", encryptedFields);
+      //console.log("encryptedFields111111111111:::::::::", encryptedFields);
 
       if (options.where) {
         if (subQuery) {
@@ -1496,7 +1539,7 @@ class QueryGenerator {
       }
     }
 
-    console.log("mainQueryItems", mainQueryItems);
+    //console.log("mainQueryItems", mainQueryItems);
 
     // Add GROUP BY to sub or main query
     if (options.group) {
@@ -1524,7 +1567,7 @@ class QueryGenerator {
     // Add ORDER to sub or main query
     if (options.order) {
       const orders = this.getQueryOrders(options, model, subQuery);
-      console.log("---------------------------------INSIDE ORDER BY----------------------------------");
+      //console.log("---------------------------------INSIDE ORDER BY----------------------------------");
       if (orders.mainQueryOrder.length) {
         mainQueryItems.push(` ORDER BY ${orders.mainQueryOrder.join(', ')}`);
       }
@@ -1661,7 +1704,7 @@ class QueryGenerator {
     topLevelInfo.options.keysEscaped = true;
 
     if (topLevelInfo.names.name !== parentTableName.externalAs && topLevelInfo.names.as !== parentTableName.externalAs) {
-      console.log("generateInclude concate -> in n level nesting field if------------------------------------- ");
+      //console.log("generateInclude concate -> in n level nesting field if------------------------------------- ");
       // includeAs.internalAs = `${parentTableName.internalAs}->${include.as}`;
       includeAs.internalAs = `${parentTableName.internalAs}.${include.as}`;
       includeAs.externalAs = `${parentTableName.externalAs}.${include.as}`;
@@ -1674,24 +1717,24 @@ class QueryGenerator {
 
       const includeAttributes = include.attributes.map(attr => {
         let attrAs = attr;
-        console.log("generateInclude attrAs  11 ----------------- ", attrAs);		
+        //console.log("generateInclude attrAs  11 ----------------- ", attrAs);		
         if (attr[0] instanceof Utils.Fn) {
-          console.log("generateInclude attr args ----------------", attr[0].args);
+          //console.log("generateInclude attr args ----------------", attr[0].args);
           for (const key in attr[0].args) {
             if (attr[0].args[key] instanceof Utils.Col) {
-              console.log("generateInclude attr[0].args[key]  ----------------", attr[0].args[key]);
+              //console.log("generateInclude attr[0].args[key]  ----------------", attr[0].args[key]);
               let attribute = attr[0].args[key].col;
               let fieldName = attribute.split('.').pop();
-              console.log("generateInclude Include 1 -------------- ", attribute, " \n ------------------------- \n",);
+              //console.log("generateInclude Include 1 -------------- ", attribute, " \n ------------------------- \n",);
               if (include.model.rawAttributes[fieldName].type.toString().includes("BLOB") && include.model.rawAttributes[fieldName].encrypt !== false) {
-                console.log("generateInclude  Include fieldName ------------- ", fieldName);
+                //console.log("generateInclude  Include fieldName ------------- ", fieldName);
                 fieldName = "`"+attribute.replace('.','`.`')+"`";
-                console.log("generateInclude fieldName ------------------- ",fieldName);
+                //console.log("generateInclude fieldName ------------------- ",fieldName);
                 // attr[0].args[key] = fn('aes_decrypt', col(fieldName), process.env.ENCRYPTION_KEY, process.env.IV_KEY);
                 attr[0].args[key] = fn("CONVERT", sequelize.literal(`aes_decrypt(${fieldName}, "${process.env.ENCRYPTION_KEY}", "${process.env.IV_KEY}") USING utf8`) )
                 // attr[0].args[key] = fn('convert',fn('aes_decrypt',col(fieldName),process.env.ENCRYPTION_KEY, process.env.IV_KEY), `CHAR`);
                 // attr[0].args[key] = `convert(aes_decrypt(${fieldName},${process.env.ENCRYPTION_KEY},${process.env.IV_KEY})using utf8)`;
-                console.log("generateInclude attr[0].args[key].col ::::::::::::: ",attr[0].args[key]);
+                //console.log("generateInclude attr[0].args[key].col ::::::::::::: ",attr[0].args[key]);
               }
             }
           }
@@ -1699,7 +1742,7 @@ class QueryGenerator {
 
         let verbatim = false;
 
-        console.log("generateInclude attr : ",attr, " ",typeof attr);
+        //console.log("generateInclude attr : ",attr, " ",typeof attr);
         if (Array.isArray(attr) && attr.length === 2) {
           if (attr[0] instanceof Utils.SequelizeMethod && (
             attr[0] instanceof Utils.Literal ||
@@ -1727,7 +1770,7 @@ class QueryGenerator {
         let prefix;
         if (verbatim === true) {
           prefix = attr;
-          console.log("gerateInclude if --------------- prefix -------",prefix);
+          //console.log("gerateInclude if --------------- prefix -------",prefix);
         } else if (/#>>|->>/.test(attr)) {
           prefix = `(${this.quoteIdentifier(includeAs.internalAs)}.${attr.replace(/\(|\)/g, '')})`;
         } else if (/json_extract\(/.test(attr)) {
@@ -1739,7 +1782,7 @@ class QueryGenerator {
           } else {
             prefix = `${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}`;
           }
-          console.log("gerateInclude else  --------------- prefix -------",prefix);
+          //console.log("gerateInclude else  --------------- prefix -------",prefix);
         }
         let alias = `${includeAs.externalAs}.${attrAs}`;
 
@@ -1898,7 +1941,7 @@ class QueryGenerator {
 
     if (!asLeft) asLeft = parent.as || parent.model.name;
     else {
-      console.log('GENERATE JOIN AS RIGHT :::::::::::::::::::::::::::::::', asRight);
+      //console.log('GENERATE JOIN AS RIGHT :::::::::::::::::::::::::::::::', asRight);
       // asRight = `${asLeft}->${asRight}`;
       asRight = `${asLeft}.${asRight}`;
     }
@@ -2252,9 +2295,9 @@ class QueryGenerator {
     const subQueryOrder = [];
 
     if (Array.isArray(options.order)) {
-      console.log("ORDER ------------------- \n",options);
+      //console.log("ORDER ------------------- \n",options);
       for (let order of options.order) {
-        console.log("INSIDE ORDER BY LOOP ------------------------ ",);
+        //console.log("INSIDE ORDER BY LOOP ------------------------ ",);
 
         // wrap if not array
         if (!Array.isArray(order)) {
@@ -2308,13 +2351,13 @@ class QueryGenerator {
   
   selectFromTableFragment(options, model, attributes, tables, mainTableAs, whereCondition = null, encryptedFields = null, isRaw = null) {
     this._throwOnEmptyAttributes(attributes, { modelName: model && model.name, as: mainTableAs });
-    console.log("selectFromTableFragment  -------- model ---", model);
-    console.log("selectFromTableFragment::::::::: attributes ::::::::: ", attributes);
-    console.log("selectFromTableFragment ---- encryptedFields ---------- :",encryptedFields);
-    console.log("selectFromTableFragment ----------- tables ------ : ",tables);
-    console.log("selectFromTableFragment ---------- options.tableNames :",options.tableNames);
-    console.log("selectFromTableFragment -------- main table asssssssssssssssssssssssss : ",mainTableAs);
-    console.log("selectFromTableFragment ------------ isRaw --------",isRaw); 
+    //console.log("selectFromTableFragment  -------- model ---", model);
+    //console.log("selectFromTableFragment::::::::: attributes ::::::::: ", attributes);
+    //console.log("selectFromTableFragment ---- encryptedFields ---------- :",encryptedFields);
+    //console.log("selectFromTableFragment ----------- tables ------ : ",tables);
+    //console.log("selectFromTableFragment ---------- options.tableNames :",options.tableNames);
+    //console.log("selectFromTableFragment -------- main table asssssssssssssssssssssssss : ",mainTableAs);
+    //console.log("selectFromTableFragment ------------ isRaw --------",isRaw); 
 
     if(options.tableNames instanceof Array && options && options.tableNames && options.tableNames.length > 1){
       encryptedFields.encryptedFields=encryptedFields.encryptedFields.map(field => mainTableAs+'.'+field);
@@ -2323,8 +2366,8 @@ class QueryGenerator {
     encryptedFields = encryptedFields.subTableEncryptedFields!== null ? encryptedFields = [...encryptedFields.encryptedFields, ...encryptedFields.subTableEncryptedFields] : [...encryptedFields.encryptedFields]
 
 
-    console.log("After appending main table name in encrypted fields :::::::::::::::::::::::: ", encryptedFields);
-    console.log("attributes :::::::::::::::::::::::: ", attributes);
+    // //console.log("After appending main table name in encrypted fields :::::::::::::::::::::::: ", encryptedFields);
+    // //console.log("attributes :::::::::::::::::::::::: ", attributes);
 
     if (isRaw) {
       attributes.forEach((attribute, index) => {
@@ -2333,10 +2376,10 @@ class QueryGenerator {
               let old_as = attr.split(" AS ")[1];
               let new_as = old_as.replace(/\./g, '_');
               if(old_as.indexOf('.') > 0){
-                  // console.log("\n\n:::::::::::::::::::::::::::: ",old_as,"\n\n");
+                  // //console.log("\n\n:::::::::::::::::::::::::::: ",old_as,"\n\n");
                   new_as = old_as.split(".");
                   new_as = '`'+new_as[new_as.length - 1];
-                  // console.log("\n\n:::::::::::::::::::::::::::: ",new_as,"\n\n");
+                  // //console.log("\n\n:::::::::::::::::::::::::::: ",new_as,"\n\n");
                   if(new_as === "`id`"){
                       new_as = old_as.replace(/\./g, '_');
                   }
@@ -2348,7 +2391,7 @@ class QueryGenerator {
 
     if(encryptedFields) {
        attributes.forEach((attribute, index) => {
-        console.log("SINGLEEEEEE ATTR", attribute);
+        // //console.log("SINGLEEEEEE ATTR", attribute);
         var fieldName = attributes[index].replace(/`/g,'');
         var as = fieldName.substr(fieldName.indexOf('.')+1); 
         if(attribute.trim().indexOf(" AS ") >= 0) {
@@ -2356,13 +2399,13 @@ class QueryGenerator {
           attribute = attr.split(" AS ")[0];
           as  = attr.split(" AS ")[1];
         }
-        console.log('attribute : ', attribute, ":::::::::::::", fieldName ,":::::::::::", as, '\n');
+        // //console.log('attribute : ', attribute, ":::::::::::::", fieldName ,":::::::::::", as, '\n');
         if(encryptedFields.includes(attribute)){
           attributes[index] = `convert(aes_decrypt(${attribute}, '${process.env.ENCRYPTION_KEY}', '${process.env.IV_KEY}')using utf8) AS ${as}`;
         }
       });
     }
-    console.log("AFTER CONVERT ATTRIBUTES ARE ::::::::::::::::::::::::::::::",attributes);
+    // //console.log("AFTER CONVERT ATTRIBUTES ARE ::::::::::::::::::::::::::::::",attributes);
 
     let fragment = `SELECT ${attributes.join(', ')} FROM ${tables}`;
 
@@ -2507,10 +2550,10 @@ class QueryGenerator {
   }
 
   whereItemsQuery(where, options, binding) {
-    console.log("======================Inside where items query=============================");
-    console.log("======================Inside where items query Where=============================>",where);
-    console.log("======================Inside where items query options=============================>",options);
-    console.log("======================Inside where items query binding=============================>",binding);
+    //console.log("======================Inside where items query=============================");
+    //console.log("======================Inside where items query Where=============================>",where);
+    //console.log("======================Inside where items query options=============================>",options);
+    //console.log("======================Inside where items query binding=============================>",binding);
     if (
       where === null ||
       where === undefined ||
@@ -2530,26 +2573,26 @@ class QueryGenerator {
     if (binding[0] !== ' ') binding = ` ${binding} `;
 
     if (_.isPlainObject(where)) {
-      console.log("plain object if===================================>");
+      //console.log("plain object if===================================>");
       Utils.getComplexKeys(where).forEach(prop => {
-        console.log("plain object if Prop=================================>",prop);
+        //console.log("plain object if Prop=================================>",prop);
         const item = where[prop];
         items.push(this.whereItemQuery(prop, item, options));
       });
     } else {
-      console.log("plain object else===================================>");
+      //console.log("plain object else===================================>");
       items.push(this.whereItemQuery(undefined, where, options));
     }
 
-    console.log("Items=========================================>",items);
+    //console.log("Items=========================================>",items);
 
     return items.length && items.filter(item => item && item.length).join(binding) || '';
   }
 
   whereItemQuery(key, value, options = {}) {
-    console.log("Where Item query key===============================>",key);
-    console.log("Where Item query value=============================>",value);
-    console.log("Where Item query options===========================>",options);
+    //console.log("Where Item query key===============================>",key);
+    //console.log("Where Item query value=============================>",value);
+    //console.log("Where Item query options===========================>",options);
 
     if (value === undefined) {
       throw new Error(`WHERE parameter "${key}" has invalid "undefined" value`);
@@ -2575,7 +2618,7 @@ class QueryGenerator {
       value = this._replaceAliases(value);
     }
     const valueKeys = isPlainObject && Utils.getComplexKeys(value);
-    console.log("Where Item query  valueKeys========================>",valueKeys);
+    //console.log("Where Item query  valueKeys========================>",valueKeys);
 
     if (key === undefined) {
       if (typeof value === 'string') {
@@ -2651,10 +2694,10 @@ class QueryGenerator {
       return this._joinKeyValue(this.OperatorMap[key], opValue, this.OperatorMap[Op.eq], options.prefix);
     }
 
-    console.log("@@@@@@@@@@@@@@1111111111111", value);
+    //console.log("@@@@@@@@@@@@@@1111111111111", value);
     const opValue = options.bindParam ? this.format(value, field, options, options.bindParam) : this.escape(value, field);
-    console.log("OpValueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ::::",opValue);
-    console.log("#######################11111111111 \n\n", value, field, options, options.bindParam);
+    //console.log("OpValueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ::::",opValue);
+    //console.log("#######################11111111111 \n\n", value, field, options, options.bindParam);
     return this._joinKeyValue(key, opValue, this.OperatorMap[Op.eq], options.prefix);
   }
 
@@ -2794,7 +2837,7 @@ class QueryGenerator {
   }
 
   _joinKeyValue(key, value, comparator, prefix) {
-    console.log("##########2222222222222", key, value, comparator, prefix);
+    //console.log("##########2222222222222", key, value, comparator, prefix);
     if (!key) {
       return value;
     }
@@ -2802,7 +2845,9 @@ class QueryGenerator {
       throw new Error(`${key} and ${value} has no comparator`);
     }
     key = this._getSafeKey(key, prefix);
+    //console.log("\n##### Returning value of _joinKeyValue :: \n",[key, value].join(` ${comparator} `));
     return [key, value].join(` ${comparator} `);
+    // return [key, value].join(` ${comparator} `);
   }
 
   _getSafeKey(key, prefix) {
@@ -2841,9 +2886,9 @@ class QueryGenerator {
   }
 
   _whereParseSingleValueObject(key, field, prop, value, options) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject  ???????????????????????????????????????\n`,options.model.rawAttributes[key].type);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject  ???????????????????????????????????????\n`,options?.model?.rawAttributes[key]?.type);
     if (prop === Op.not) {
-      console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 000000000 ???????????????????????????????????????`);
+      //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 000000000 ???????????????????????????????????????`);
       if (Array.isArray(value)) {
         prop = Op.notIn;
       } else if (value !== null && value !== true && value !== false) {
@@ -2851,29 +2896,29 @@ class QueryGenerator {
       }
     }
 
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 11111111 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 11111111 ???????????????????????????????????????`);
 
     let comparator = this.OperatorMap[prop] || this.OperatorMap[Op.eq];
 
     switch (prop) {
       case Op.in:
       case Op.notIn:
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 222222222222222 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 222222222222222 ???????????????????????????????????????`);
 
         if (value instanceof Utils.Literal) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 3333333333333 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 3333333333333 ???????????????????????????????????????`);
 
           return this._joinKeyValue(key, value.val, comparator, options.prefix);
         }
 
         if (value.length) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 444444444444444444444 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 444444444444444444444 ???????????????????????????????????????`);
 
           return this._joinKeyValue(key, `(${value.map(item => this.escape(item, field)).join(', ')})`, comparator, options.prefix);
         }
 
         if (comparator === this.OperatorMap[Op.in]) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 55555555555555 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 55555555555555 ???????????????????????????????????????`);
 
           return this._joinKeyValue(key, '(NULL)', comparator, options.prefix);
         }
@@ -2882,10 +2927,10 @@ class QueryGenerator {
       case Op.any:
       case Op.all:
         comparator = `${this.OperatorMap[Op.eq]} ${comparator}`;
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 666666666666666666 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 666666666666666666 ???????????????????????????????????????`);
 
         if (value[Op.values]) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 7777777777777777777777 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 7777777777777777777777 ???????????????????????????????????????`);
 
           return this._joinKeyValue(key, `(VALUES ${value[Op.values].map(item => `(${this.escape(item)})`).join(', ')})`, comparator, options.prefix);
         }
@@ -2893,13 +2938,13 @@ class QueryGenerator {
         return this._joinKeyValue(key, `(${this.escape(value, field)})`, comparator, options.prefix);
       case Op.between:
       case Op.notBetween:
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 88888888888888888888 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 88888888888888888888 ???????????????????????????????????????`);
 
         return this._joinKeyValue(key, `${this.escape(value[0], field)} AND ${this.escape(value[1], field)}`, comparator, options.prefix);
       case Op.raw:
         throw new Error('The `$raw` where property is no longer supported.  Use `sequelize.literal` instead.');
       case Op.col:
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 9999999999999999999999999999 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 9999999999999999999999999999 ???????????????????????????????????????`);
 
         comparator = this.OperatorMap[Op.eq];
         value = value.split('.');
@@ -2916,11 +2961,11 @@ class QueryGenerator {
       case Op.startsWith:
       case Op.endsWith:
       case Op.substring:
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 10101010101010101010101010101010 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 10101010101010101010101010101010 ???????????????????????????????????????`);
 
         comparator = this.OperatorMap[Op.like];
         if (value instanceof Utils.Literal) {
-    console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 11-11-11-11-11-11-11-11-11-11-11-11-11 ???????????????????????????????????????`);
+    //console.log(`???????????????????????????????????????????? inside whereParseSingleValueObject 11-11-11-11-11-11-11-11-11-11-11-11-11 ???????????????????????????????????????`);
           value = value.val;
         }
 
@@ -2936,39 +2981,40 @@ class QueryGenerator {
       acceptStrings: comparator.includes(this.OperatorMap[Op.like])
     };
 
-    console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 12", escapeOptions, Op);
+    //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 12", escapeOptions, Op);
 
     if (_.isPlainObject(value)) {
-      console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 13");
+      //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 13");
       if (value[Op.col]) {
-        console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 14");
+        //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 14");
         return this._joinKeyValue(key, this.whereItemQuery(null, value), comparator, options.prefix);
       }
       if (value[Op.any]) {
-        console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 15");
+        //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 15");
         escapeOptions.isList = true;
         return this._joinKeyValue(key, `(${this.escape(value[Op.any], field, escapeOptions, true)})`, `${comparator} ${this.OperatorMap[Op.any]}`, options.prefix);
       }
       if (value[Op.all]) {
-        console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 16");
+        //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 16");
         escapeOptions.isList = true;
         return this._joinKeyValue(key, `(${this.escape(value[Op.all], field, escapeOptions, true)})`, `${comparator} ${this.OperatorMap[Op.all]}`, options.prefix);
       }
     }
 
     if (value === null && comparator === this.OperatorMap[Op.eq]) {
-      console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 17");
+      //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 17");
       return this._joinKeyValue(key, this.escape(value, field, escapeOptions, true), this.OperatorMap[Op.is], options.prefix);
     }
     if (value === null && comparator === this.OperatorMap[Op.ne]) {
-      console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 18");
+      //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 18");
       return this._joinKeyValue(key, this.escape(value, field, escapeOptions, true), this.OperatorMap[Op.not], options.prefix);
     }
-    console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 90");
+    //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 90");
 
-    console.log("?????????????????? whereParseSingleValueObject ????????? Key Type ::  ",options.model.rawAttributes[key].type.toString());
-    if (Object.keys(Object).length >=1 && options.model.rawAttributes[key].type.toString() === "BLOB")
-      return this._joinKeyValue("", this.escape(value, field, escapeOptions, true), "", "");
+    //console.log("?????????????????? whereParseSingleValueObject ????????? Key Type ::  ", options.model.rawAttributes[key].type.toString());
+    
+    if (options.model.rawAttributes[key].type.toString() === "BLOB")
+        return this._joinKeyValue("", this.escape(value, field, escapeOptions, true), "", "");
     else
       return this._joinKeyValue(key, this.escape(value, field, escapeOptions, true), comparator, options.prefix);
   }
@@ -2979,11 +3025,11 @@ class QueryGenerator {
   */
   getWhereConditions(smth, tableName, factory, options, prepend) {
 
-    console.log("getWhereConditions smth----------------------------------------------------------===============", smth);
-    console.log("getWhereConditions tableName----------------------------------------------------------", tableName);
-    console.log("getWhereConditions facotry----------------------------------------------------------", factory);
-    console.log("getWhereConditions options----------------------------------------------------------", options);
-    console.log("getWhereConditions prepend----------------------------------------------------------", prepend);
+    //console.log("getWhereConditions smth----------------------------------------------------------===============", smth);
+    //console.log("getWhereConditions tableName----------------------------------------------------------", tableName);
+    //console.log("getWhereConditions facotry----------------------------------------------------------", factory);
+    //console.log("getWhereConditions options----------------------------------------------------------", options);
+    //console.log("getWhereConditions prepend----------------------------------------------------------", prepend);
 
     const where = {};
 
@@ -3035,7 +3081,7 @@ class QueryGenerator {
       });
     }
     if (Buffer.isBuffer(smth)) {
-      // console.log("Bufferrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr :",smth);
+      // //console.log("Bufferrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr :",smth);
       return this.escape(smth);
     }
     if (Array.isArray(smth)) {
