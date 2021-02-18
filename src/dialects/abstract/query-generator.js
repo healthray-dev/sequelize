@@ -1296,98 +1296,22 @@ class QueryGenerator {
     // console.log("selectQuery attribuites before include ::::::::::::::::::::: \n",attributes);
     // console.log("=============================== in inclu =========================\n", options.include);
     if (options.include) {
-      let isInclude = true;    
-      let includes = options.include;
-      let tableNames = null;
-      while (isInclude) {
-        for (let include of includes) {
-          if (include.separate) { continue; }          
-          // console.log("include model name::::::::::::::::::::::::: ", include);
-          let tableName = include.as;
-          if(tableNames === null) { 
-            tableNames = tableName;
-          } 
-          else {
-            tableNames += '.' + tableName;
-          }
-          // console.log("include model name::::::::::::::::::::::::: ", tableNames);
-          for (var key in include.model.rawAttributes) {
-            if(include.model.rawAttributes[key].type.toString().includes("BLOB") && include.model.rawAttributes[key].encrypt !== false){
-              subTableEncryptedFields.push("`" + tableNames + "`."+ "`"+key+"`");
-            }
-          }
-    
-          encFields.subTableEncryptedFields = subTableEncryptedFields;
-          const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);        
-          subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
-          // mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);          
-          // if (joinQueries.attributes.main.length > 0) {
-            // attributes.main = _.uniq(attributes.main.concat(joinQueries.attributes.main));
-          // }
-          // if (joinQueries.attributes.subQuery.length > 0) {
-          //   attributes.subQuery = _.uniq(attributes.subQuery.concat(joinQueries.attributes.subQuery));
-          // }
+      for (const include of options.include) {
+        if (include.separate) {
+          continue;
+        }
+        const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);
+        subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
+        mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);
+        if (joinQueries.attributes.main.length > 0) {
+          attributes.main = _.uniq(attributes.main.concat(joinQueries.attributes.main));
+        }
+        if (joinQueries.attributes.subQuery.length > 0) {
+          attributes.subQuery = _.uniq(attributes.subQuery.concat(joinQueries.attributes.subQuery));
+        }
+      }
+  }
 
-          if (include.include) includes = include.include;
-          else isInclude = false;            
-        }             
-                
-      }      
-
-      // for (const include of options.include) {
-      //   //console.log("=============================== sep =========================\n",include.separate);
-      //   if (include.separate) {
-      //     continue;
-      //   }
-      //   // console.log("include model name::::::::::::::::::::::::: ",include.model.tableName);
-      
-      //   // let subTableName = include.model.name
-      //   let subTableName = include.as
-
-      //   for (var key in include.model.rawAttributes) {
-      //     // console.log("1 TABLE ATTRIBUTES ::::  "+ key + " ===> ", tableAttributes[key]);
-      //     if(include.model.rawAttributes[key].type.toString().includes("BLOB") && include.model.rawAttributes[key].encrypt !== false){
-      //       // console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
-      //       subTableEncryptedFields.push("`"+subTableName+"`.`"+key+"`")
-      //     }
-      //   }
-
-      //   if(include.include instanceof Array) {
-      //     for(const nestedInclude of include.include){
-      //       //console.log("NESTED INCLUDE NAME :::::::::::::::::::::: ",nestedInclude.model.name);
-  
-      //       // let nestedTableName = nestedInclude.model.name
-      //       let nestedTableName = nestedInclude.as
-      //       //console.log("NESTED TABLE RAW ATTRIBUTES :::::::\n",nestedInclude.model.rawAttributes);
-  
-      //       for (var key in nestedInclude.model.rawAttributes) {
-      //         // //console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
-      //         if(nestedInclude.model.rawAttributes[key].type.toString().includes("BLOB") && nestedInclude.model.rawAttributes[key].encrypt !== false){
-      //           //console.log("INCLUDE ENCRYPTED FIELD KEYS :::::::::::::::::::::::: ",key);
-      //           subTableEncryptedFields.push("`"+subTableName+"."+nestedTableName+"`.`"+key+"`")
-      //         } 
-      //       }
-      //     }
-      //   }
-
-      //   console.log("SUB TABLE ENC FIELDS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ",subTableEncryptedFields);
-
-      //   encFields.subTableEncryptedFields = subTableEncryptedFields
-
-      //   const joinQueries = this.generateInclude(include, { externalAs: mainTable.as, internalAs: mainTable.as }, topLevelInfo);
-      //   console.log('joinQueries : ', joinQueries);
-
-      //   subJoinQueries = subJoinQueries.concat(joinQueries.subQuery);
-      //   mainJoinQueries = mainJoinQueries.concat(joinQueries.mainQuery);
-
-      //   if (joinQueries.attributes.main.length > 0) {
-      //     attributes.main = _.uniq(attributes.main.concat(joinQueries.attributes.main));
-      //   }
-      //   if (joinQueries.attributes.subQuery.length > 0) {
-      //     attributes.subQuery = _.uniq(attributes.subQuery.concat(joinQueries.attributes.subQuery));
-      //   }
-      // }subQueryItems
-    }
     //console.log("selectQuery attribuites after include ::::::::::::::::::::: \n",attributes.main);
 
     if (subQuery) {
