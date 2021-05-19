@@ -1659,6 +1659,7 @@ class QueryGenerator {
       const includeAttributes = include.attributes.map(attr => {
 
         let attrAs = attr;
+        let tempAttr = attr;
         if (attr instanceof Array) attrAs = attr[1];
         //console.log("generateInclude attrAs  11 ----------------- ", attrAs);
         if (attr[0] instanceof Utils.Fn) {
