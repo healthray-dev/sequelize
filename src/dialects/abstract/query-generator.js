@@ -373,7 +373,7 @@ class QueryGenerator {
     //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update where<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",where);
     //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update options<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",options);
     //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Inside Update attributes<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",attributes);
-    
+
     options = options || {};
     _.defaults(options, this.options);
 
@@ -446,7 +446,7 @@ class QueryGenerator {
     }
 
     const whereOptions = { ...options, bindParam };
-    // //console.log("whereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.where :::::",whereOptions.where); 
+    // //console.log("whereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.wherewhereOptions.where :::::",whereOptions.where);
     // let whereObject = whereOptions.where
     // for(let key in whereObject){
     //   if(modelAttributeMap[key].encrypt === true){
@@ -1191,14 +1191,14 @@ class QueryGenerator {
    @private
   */
   selectQuery(tableName, options, model) {
-    //console.log("selectQuery tableName--------------------------------------------------", tableName);
-    // //console.log("selectQuery options--------------------------------------------------\n", options);
-    // //console.log("selectQuery model--------------------------------------------------", model);
-    // //console.log("selectQuery attributes--------------------------------------------------");
-    // //console.log("selectQuery OPTIONS TABLE NAMES -------------------------",options.tableNames);
-    // //console.log("selectQuery attributes ------------------------------- ", options.attributes);
+    // console.log("selectQuery tableName--------------------------------------------------", tableName);
+    // console.log("selectQuery options--------------------------------------------------\n", options);
+    // console.log("selectQuery model--------------------------------------------------", model);
+    // console.log("selectQuery attributes--------------------------------------------------");
+    // console.log("selectQuery OPTIONS TABLE NAMES -------------------------",options.tableNames);
+    // console.log("selectQuery attributes ------------------------------- ", options.attributes);
 
-    //console.log("selectQuery--------------------------  options.raw ------------------------ ", options.raw);
+    // console.log("selectQuery--------------------------  options.raw ------------------------ ", options.raw);
     const isRaw = options.raw || null
     options = options || {};
     const limit = options.limit;
@@ -1250,16 +1250,16 @@ class QueryGenerator {
     }
     var encryptedFields = [];
     var subTableEncryptedFields = [];
-      
+
     for (var key in tableAttributes) {
-      // //console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
+      // console.log("TABLE ATTRIBUTES ::::  "+key + " ===> " + tableAttributes[key].encrypt);
       if(tableAttributes[key].type.toString().includes("BLOB") && tableAttributes[key].encrypt !== false)
         encryptedFields.push("`"+key+"`")
     }
 
     encFields.encryptedFields = encryptedFields
-    // //console.log("##########################################",tableAttributes);
-    // //console.log("$$$$$$$$$$$$$$$", mainTable.model.rawAttributes);
+    // console.log("##########################################",tableAttributes);
+    // console.log("$$$$$$$$$$$$$$$", mainTable.model.rawAttributes);
     // for (const key in mainTable.model.rawAttributes) {
     //   if(mainTable.model.rawAttributes[key].encrypt === true)
     //   {
@@ -1274,6 +1274,24 @@ class QueryGenerator {
       return Array.isArray(t) ? this.quoteTable(t[0], t[1]) : this.quoteTable(t, true);
     }).join(', ');
 
+    attributes.main.forEach((attr, index) => {
+      if (attr instanceof Array && attr[0] instanceof Utils.Fn) {
+        for (const args in attr[0].args) {
+          if (attr[0].args[args] instanceof Utils.Col) {
+            //console.log("generateInclude attr[0].args[args]  ----------------", attr[0].args[args]);
+            let attribute = attr[0].args[args].col;
+            let fieldName = attribute.split('.').pop();
+
+            if (model && model.rawAttributes && model.rawAttributes[fieldName] && model.rawAttributes[fieldName].type.toString().includes("BLOB") && model.rawAttributes[fieldName].encrypt !== false) {
+              // console.log("generateInclude Include 1 -------------- ", attribute, " -------------------------",fieldName);
+              fieldName = "`"+attribute.replace('.','`.`')+"`";
+              attributes.main[index][0].args[args] = fn("CONVERT", sequelize.literal(`aes_decrypt(${fieldName}, "${process.env.ENCRYPTION_KEY}", "${process.env.IV_KEY}") USING utf8`))
+            }
+          }
+        }
+      }
+    });
+
     if (subQuery && attributes.main) {
       for (const keyAtt of mainTable.model.primaryKeyAttributes) {
         // Check if mainAttributes contain the primary key of the model either as a field or an aliased field
@@ -1282,7 +1300,7 @@ class QueryGenerator {
         }
       }
     }
-  
+
     attributes.main = this.escapeAttributes(attributes.main, options, mainTable.as);
     attributes.main = attributes.main || (options.include ? [`${mainTable.as}.*`] : ['*']);
 
@@ -1444,8 +1462,8 @@ class QueryGenerator {
       //console.log("option where ----------------------------------------------------------", options.where);
       // //console.log("############################################ table attributes ################\n\n\n",tableAttributes);
 
-      
-      
+
+
       //console.log("encryptedFields111111111111:::::::::", encryptedFields);
 
       if (options.where) {
@@ -1638,10 +1656,11 @@ class QueryGenerator {
     if (topLevelInfo.options.includeIgnoreAttributes !== false) {
       include.model._expandAttributes(include);
       Utils.mapFinderOptions(include, include.model);
-
       const includeAttributes = include.attributes.map(attr => {
+
         let attrAs = attr;
-        //console.log("generateInclude attrAs  11 ----------------- ", attrAs);		
+        if (attr instanceof Array) attrAs = attr[1];
+        //console.log("generateInclude attrAs  11 ----------------- ", attrAs);
         if (attr[0] instanceof Utils.Fn) {
           //console.log("generateInclude attr args ----------------", attr[0].args);
           for (const key in attr[0].args) {
@@ -1676,6 +1695,7 @@ class QueryGenerator {
             verbatim = true;
           }
 
+          // console.log("######################################### Hereeeeee ################################## ");
           attr = attr.map(attr => attr instanceof Utils.SequelizeMethod ? this.handleSequelizeMethod(attr) : attr);
 
           attrAs = attr[1];
@@ -1692,39 +1712,54 @@ class QueryGenerator {
         }
 
         let prefix;
+        let alias = `${includeAs.externalAs}.${attrAs}`;
+        // let fieldName = null;
+        // console.log("\n################################ attr ###################################################### ", attr);
+        const currentField = attr instanceof Array ? attr[1] : attr;
+        // console.log("\n################################ attrAs ########### :: ",includeAs.externalAs.toLowerCase()," :: ############# ", currentField);
+        if ((include && include.parent && (include.parent.raw || (include.parent.parent && include.parent.parent.raw))) || (topLevelInfo && topLevelInfo.options && topLevelInfo.options.raw)) {
+            // console.log("condition include :::::::::::::::::::::::::::::::::;; ", !include.subQuery && encFieldName == 'id');
+            // console.log("::::::::::::::::::::::::::::::::::::::::: currentField :::::::::::::::::::::::::  ", currentField, " ########### ", attrAs, " $$$$$$$ ");
+            if (currentField == 'id' && (!include.subQuery || attr instanceof Array)) {
+              alias = `${includeAs.externalAs.toLowerCase()}.${attrAs}`;
+            }
+            else
+                alias = attrAs;
+        }
+
+        // console.log("######################### ALIAS ################################################### ", alias);
+
+
         if (verbatim === true) {
           prefix = attr;
-          //console.log("gerateInclude if --------------- prefix -------",prefix);
         } else if (/#>>|->>/.test(attr)) {
-          prefix = `(${this.quoteIdentifier(includeAs.internalAs)}.${attr.replace(/\(|\)/g, '')})`;
+            prefix = `(${this.quoteIdentifier(includeAs.internalAs)}.${attr.replace(/\(|\)/g, '')})`;
         } else if (/json_extract\(/.test(attr)) {
-          prefix = attr.replace(/json_extract\(/i, `json_extract(${this.quoteIdentifier(includeAs.internalAs)}.`);
-        } else { 
-          const fieldName = this.quoteIdentifier(attr).replace(/`/g, '');
-          if (include.model.rawAttributes[fieldName].type.toString().includes("BLOB") && include.model.rawAttributes[fieldName].encrypt !== false) {            
+            prefix = attr.replace(/json_extract\(/i, `json_extract(${this.quoteIdentifier(includeAs.internalAs)}.`);
+        } else {
+            const encFieldName = this.quoteIdentifier(attr).replace(/`/g, '');
+          if (include.model.rawAttributes[encFieldName].type.toString().includes("BLOB") && include.model.rawAttributes[encFieldName].encrypt !== false) {
             prefix = `CONVERT(aes_decrypt(${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}, "${process.env.ENCRYPTION_KEY}", "${process.env.IV_KEY}") USING utf8)`;
           } else {
             prefix = `${this.quoteIdentifier(includeAs.internalAs)}.${this.quoteIdentifier(attr)}`;
           }
-          //console.log("gerateInclude else  --------------- prefix -------",prefix);
         }
-        let alias = `${includeAs.externalAs}.${attrAs}`;
 
+        // console.log("######################################### ALIAS ###############################################  ", alias);
         if (this.options.minifyAliases) {
           alias = this._getMinifiedAlias(alias, includeAs.internalAs, topLevelInfo.options);
         }
-
         return Utils.joinSQLFragments([
           prefix,
           'AS',
           this.quoteIdentifier(alias, true)
         ]);
       });
-      if (include.subQuery && topLevelInfo.subQuery) {
+    if (include.subQuery && topLevelInfo.subQuery) {
         for (const attr of includeAttributes) {
-          attributes.subQuery.push(attr);
+            attributes.subQuery.push(attr);
         }
-      } else {
+    } else {
         for (const attr of includeAttributes) {
           attributes.main.push(attr);
         }
@@ -1768,6 +1803,22 @@ class QueryGenerator {
         }
         if (childJoinQueries.attributes.main.length > 0) {
           attributes.main = attributes.main.concat(childJoinQueries.attributes.main);
+          if (include && include.parent && (include.parent.raw || include.parent.parent.raw)) {
+              attributes.main = attributes.main.map(attribute => {
+                if (attribute.trim().indexOf(" AS ") >= 0) {
+                    // console.log("============================ ATTRIBUTE =======================", attribute);
+                    let attr = attribute.split(" AS ");
+                    // console.log("============================ ATTR =======================", attr);
+                    // let lhsRef = attr[0].replace(/[.](?=.*[.])/g, "_");
+                    // console.log("============================ LHS =======================", lhsRef);
+                    let rhsRef = attr[1].replace(/\./g, '_');
+                    // console.log("============================ RHS =======================", rhsRef);
+                    return `${attr[0]} AS ${rhsRef}`;
+                }
+                return attribute;
+              });
+          }
+        //   console.log("\n\n##################### ATTRIBUTES.MAIN ##############################\n", attributes.main);
         }
         if (childJoinQueries.attributes.subQuery.length > 0) {
           attributes.subQuery = attributes.subQuery.concat(childJoinQueries.attributes.subQuery);
@@ -1857,7 +1908,8 @@ class QueryGenerator {
 
     while (($parent = $parent && $parent.parent || include.parent) && $parent.association) {
       if (asLeft) {
-        asLeft = `${$parent.as}->${asLeft}`;
+        // asLeft = `${$parent.as}->${asLeft}`;
+        asLeft = `${$parent.as}.${asLeft}`;
       } else {
         asLeft = $parent.as;
       }
@@ -1871,6 +1923,8 @@ class QueryGenerator {
     }
 
     let joinOn = `${this.quoteTable(asLeft)}.${this.quoteIdentifier(fieldLeft)}`;
+
+    // console.log("########################################### JOIN-ON ##############################################", joinOn);
     const subqueryAttributes = [];
 
     if (topLevelInfo.options.groupedLimit && parentIsTop || topLevelInfo.subQuery && include.parent.subQuery && !include.subQuery) {
@@ -1884,11 +1938,15 @@ class QueryGenerator {
         if (topLevelInfo.subQuery) {
           subqueryAttributes.push(`${tableName}.${this.quoteIdentifier(fieldLeft)}`);
         }
+        // console.log("########################### IF PARENT-IS-TOP #################################  ");
       } else {
         const joinSource = `${asLeft.replace(/->/g, '.')}.${attrLeft}`;
 
         // Check for potential aliased JOIN condition
         joinOn = this._getAliasForField(asLeft, joinSource, topLevelInfo.options) || this.quoteIdentifier(joinSource);
+        if ((include && include.parent && include.parent.raw) || (topLevelInfo && topLevelInfo.options && topLevelInfo.options.raw))
+            joinOn = joinOn.replace(/\./g,"_");
+        // console.log("########################### ELSE PARENT-IS-TOP #################################  ", joinOn);
       }
     }
 
@@ -2272,7 +2330,7 @@ class QueryGenerator {
     const message = `Attempted a SELECT query ${namePart} ${asPart} without selecting any columns`;
     throw new sequelizeError.QueryError(message.replace(/ +/g, ' '));
   }
-  
+
   selectFromTableFragment(options, model, attributes, tables, mainTableAs, whereCondition = null, encryptedFields = null, isRaw = null) {
     this._throwOnEmptyAttributes(attributes, { modelName: model && model.name, as: mainTableAs });
     //console.log("selectFromTableFragment  -------- model ---", model);
@@ -2281,7 +2339,7 @@ class QueryGenerator {
     //console.log("selectFromTableFragment ----------- tables ------ : ",tables);
     //console.log("selectFromTableFragment ---------- options.tableNames :",options.tableNames);
     //console.log("selectFromTableFragment -------- main table asssssssssssssssssssssssss : ",mainTableAs);
-    //console.log("selectFromTableFragment ------------ isRaw --------",isRaw); 
+    //console.log("selectFromTableFragment ------------ isRaw --------",isRaw);
 
     if(options.tableNames instanceof Array && options && options.tableNames && options.tableNames.length > 1){
       encryptedFields.encryptedFields=encryptedFields.encryptedFields.map(field => mainTableAs+'.'+field);
@@ -2317,7 +2375,7 @@ class QueryGenerator {
        attributes.forEach((attribute, index) => {
         // //console.log("SINGLEEEEEE ATTR", attribute);
         var fieldName = attributes[index].replace(/`/g,'');
-        var as = fieldName.substr(fieldName.indexOf('.')+1); 
+        var as = fieldName.substr(fieldName.indexOf('.')+1);
         if(attribute.trim().indexOf(" AS ") >= 0) {
           var attr = attribute;
           attribute = attr.split(" AS ")[0];
@@ -2374,6 +2432,7 @@ class QueryGenerator {
   }
 
   handleSequelizeMethod(smth, tableName, factory, options, prepend) {
+
     let result;
 
     if (Object.prototype.hasOwnProperty.call(this.OperatorMap, smth.comparator)) {
@@ -2508,7 +2567,7 @@ class QueryGenerator {
       items.push(this.whereItemQuery(undefined, where, options));
     }
 
-    //console.log("Items=========================================>",items);
+    // console.log("Items================ whereItemsQuery =========================>",items);
 
     return items.length && items.filter(item => item && item.length).join(binding) || '';
   }
@@ -2936,8 +2995,8 @@ class QueryGenerator {
     //console.log("???????????????????????????????????????????? inside whereParseSingleValueObject 90");
 
     //console.log("?????????????????? whereParseSingleValueObject ????????? Key Type ::  ", options.model.rawAttributes[key].type.toString());
-    
-    if (options.model.rawAttributes[key].type.toString() === "BLOB")
+
+    if (options && options.model && options.model.rawAttributes[key] && options.model.rawAttributes[key].type.toString() === "BLOB")
         return this._joinKeyValue("", this.escape(value, field, escapeOptions, true), "", "");
     else
       return this._joinKeyValue(key, this.escape(value, field, escapeOptions, true), comparator, options.prefix);
@@ -2973,7 +3032,7 @@ class QueryGenerator {
     if (smth && smth instanceof Utils.SequelizeMethod) { // Checking a property is cheaper than a lot of instanceof calls
       return this.handleSequelizeMethod(smth, tableName, factory, options, prepend);
     }
-    
+
     if (_.isPlainObject(smth)) {
       return this.whereItemsQuery(smth, {
         model: factory,
