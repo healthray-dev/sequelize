@@ -1720,11 +1720,10 @@ class QueryGenerator {
         if ((include && include.parent && (include.parent.raw || (include.parent.parent && include.parent.parent.raw))) || (topLevelInfo && topLevelInfo.options && topLevelInfo.options.raw)) {
             // console.log("condition include :::::::::::::::::::::::::::::::::;; ", !include.subQuery && encFieldName == 'id');
             // console.log("::::::::::::::::::::::::::::::::::::::::: currentField :::::::::::::::::::::::::  ", currentField, " ########### ", attrAs, " $$$$$$$ ");
-            if (currentField == 'id' && (!include.subQuery || attr instanceof Array)) {
+            if (currentField == 'id')
               alias = `${includeAs.externalAs.toLowerCase()}.${attrAs}`;
-            }
             else
-                alias = attrAs;
+              alias = attrAs;
         }
 
         // console.log("######################### ALIAS ################################################### ", alias);
