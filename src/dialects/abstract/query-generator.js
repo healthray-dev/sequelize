@@ -968,7 +968,7 @@ class QueryGenerator {
   quoteIdentifiers(identifiers) {
     if (identifiers.includes('.')) {
       identifiers = identifiers.split('.');
-      const head = identifiers.slice(0, identifiers.length - 1).join('->');
+      const head = identifiers.slice(0, identifiers.length - 1).join('.');
       const tail = identifiers[identifiers.length - 1];
 
       return `${this.quoteIdentifier(head)}.${this.quoteIdentifier(tail)}`;
@@ -1803,7 +1803,7 @@ class QueryGenerator {
         }
         if (childJoinQueries.attributes.main.length > 0) {
           attributes.main = attributes.main.concat(childJoinQueries.attributes.main);
-          if (include && include.parent && (include.parent.raw || include.parent.parent.raw)) {
+          if (include && include.parent && (include.parent.raw || (include.parent.parent && include.parent.parent.raw))) {
               attributes.main = attributes.main.map(attribute => {
                 if (attribute.trim().indexOf(" AS ") >= 0) {
                     // console.log("============================ ATTRIBUTE =======================", attribute);
